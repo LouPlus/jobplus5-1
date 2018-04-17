@@ -3,8 +3,9 @@
   <head>
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
+    
     <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="static/main.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
   </head>
   <body>
     <nav class="navbar navbar-inverse">
@@ -20,24 +21,24 @@
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav">
-            <li class="{% if active == 'job' %}active{% endif %}"><a href="#">Jobs<span class="sr-only">(current)</span></a></li>
-            <li class="{% if active == 'company' %}active{% endif %}"><a href="#">Companys<span class="sr-only">(current)</span></a></li>
+            <li class="{% if active == 'job' %}active{% endif %}"><a href="{{ url_for('job.index') }}">职位<span class="sr-only">(current)</span></a></li>
+            <li class="{% if active == 'company' %}active{% endif %}"><a href="#">公司<span class="sr-only">(current)</span></a></li>
             {% if current_user.is_authenticated and current_user.is_admin %}
-            <li><a href="#">control</a></li>
+            <li><a href="#">控制台</a></li>
             {% endif %}
         </ul>
         <ul class="nav navbar-nav navbar-right">
           {% if not current_user.is_authenticated %}  
-            <li><a href="{{ url_for('front.userregister') }}">Userregister</a></li>
-            <li><a href="{{ url_for('front.companyregister') }}">Companyregister</a></li>
-            <li><a href="{{ url_for('front.login') }}">Login</a></li>
+            <li><a href="{{ url_for('front.userregister') }}">用户注册</a></li>
+            <li><a href="{{ url_for('front.companyregister') }}">企业注册</a></li>
+            <li><a href="{{ url_for('front.login') }}">登录</a></li>
           {% else %}
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ current_user.username }}<span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li><a href="#">my page</a></li>
+                <li><a href="#">我的主页</a></li>
                 <li role="separator" class="divider"></li>
-                <li><a href="{{ url_for('front.logout') }}">logout</a></li>
+                <li><a href="{{ url_for('front.logout') }}">退出登录</a></li>
               </ul>
             </li>
           {% endif %}
@@ -45,7 +46,11 @@
         </div>
       </div>
     </nav>
+
+    <div class="container-fluid header">
     {% block head %}{% endblock %}
+    </div>
+
     <div class="container">
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -57,55 +62,60 @@
         {% endfor %}
         {% endif %}
       {% endwith %}
+
       {% block body %}{% endblock %}
+      
       {% block footer %}
-      <footer class="footer ">
+      <footer class="footer">
         <div class="container">
           <div class="row footer-top">
             <div class="col-md-6 col-lg-6">
               <h4>
                 <img src="https://static.shiyanlou.com/img/logo-white.png">
               </h4>
-              <p>help us find jobs</p>
+              <p>jobplus 专注互联网职业机会</p>
             </div>
             <div class="col-md-6  col-lg-5 col-lg-offset-1">
               <div class="row about">
                 <div class="col-sm-3">
-                  <h4>abort</h4>
+                  <h4>关于</h4>
                   <ul class="list-unstyled">
-                    <li><a href="/about/">Abort Us</a></li>
-                    <li><a href="/ad/">Advertisement</a></li>
-                    <li><a href="/links/">Friendly Link</a></li>
-                    <li><a href="/hr/">Recruit</a></li>
+                    <li><a href="/about/">关于我们</a></li>
+                    <li><a href="/ad/">商业合作</a></li>
+                    <li><a href="/links/">友情链接</a></li>
+                    <li><a href="/hr/">招聘</a></li>
                   </ul>
                 </div>
                 <div class="col-sm-3">
-                  <h4>Contact Information</h4>
+                  <h4>联系方式</h4>
                   <ul class="list-unstyled">
-                    <li><a href="#" title="jobplus-weibo" target="_blank">sina blog</a></li>
-                    <li><a href="mailto:admin@jobplus.com">email</a></li>
+                    <li><a href="#" title="jobplus-weibo" target="_blank">微博</a></li>
+                    <li><a href="mailto:admin@jobplus.com">邮箱</a></li>
                   </ul>
                 </div>
                 <div class="col-sm-2">
-                  <h4>Sponsor</h4>
+                  <h4>赞助者</h4>
                   <ul class="list-unstyled">
-                    <li><a href="https://www.shiyanlou.com" target="_blank">shiyanlou</a></li>
+                    <li><a href="https://www.shiyanlou.com" target="_blank">实验楼</a></li>
+                    <li><a href="https://github.com/ququnaixiaobai" target="_blank">区区乃小白</a></li>
+                    <li><a href="https://github.com/wair56" target="_blank">wair56</a></li>
+                    <li><a href="https://github.com/kuzusalove" target="_blank">miaopaso</a></li>
                   </ul>
                 </div>
               </div>
-  
             </div>
           </div>
           <hr/>
           <div class="row footer-bottom">
             <ul class="list-inline text-center">
-              <li>Copyright @2018-2019 jobplus</li><li><a href="http://www.miibeian.gov.cn/" target="_blank">ICP number</a></li>
+              <li>Copyright @2018-2019 jobplus</li><li><a href="http://www.miibeian.gov.cn/" target="_blank">备ICP number</a></li>
             </ul>
           </div>
         </div>
       </footer>
       {% endblock %}
     </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="static/main.js"></script>
