@@ -2,3 +2,26 @@
   width: 400px;
   margin: 0 auto;
 }
+
+a,
+a:hover,
+a:visited {
+  cursor: pointer;
+  text-decoration: none !important;
+}
+
+.nav-pagination {
+  text-align: center;
+}
+
+.job-list,
+.company-list {
+  margin-top: 15px;
+}
+
+.job-box {
+  padding: 13px;
+  border: solid 1px #ddd;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}

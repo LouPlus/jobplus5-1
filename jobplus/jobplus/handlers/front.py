@@ -27,7 +27,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash('logout success', 'success')
+    flash('退出登录成功', 'success')
     return redirect(url_for('.index'))
 
 @front.route('/userregister', methods=['GET', 'POST'])
@@ -35,19 +35,19 @@ def userregister():
     form = RegisterForm()
     if form.validate_on_submit():
         form.create_user()
-        flash('userregister success', 'success')
+        flash('注册成功, 请登录', 'success')
         return redirect(url_for('.login'))
     return render_template('userregister.html', form=form)
 
 @front.route('/companyregister', methods=['GET', 'POST'])
 def companyregister():
     form = RegisterForm()
-    form.name.label = 'company name'
+    form.name.label = u'企业名称'
     if form.validate_on_submit():
         company_user = form.create_user()
         company_user.role = User.ROLE_COMPANY
         db.session.add(company_user)
         db.session.commit()
-        flash('companyregister success', 'success')
+        flash('注册成功, 请登录', 'success')
         return redirect(url_for('.login'))
     return render_template('companyregister.html', form=form)

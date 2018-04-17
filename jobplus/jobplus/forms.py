@@ -4,19 +4,19 @@ from wtforms import StringField, PasswordField, SubmitField, ValidationError, Bo
 from wtforms.validators import Required, Length, Email, EqualTo
 
 class RegisterForm(FlaskForm):
-    name = StringField('name', validators=[Required(), Length(3, 24)])
-    email = StringField('email', validators=[Required(), Email()])
-    password = PasswordField('Password', validators=[Required(), Length(6, 24)])
-    repeat_password = PasswordField('Password again', validators=[Required(), EqualTo('password')])
-    submit = SubmitField('Submit')
+    name = StringField('用户名', validators=[Required(), Length(3, 24)])
+    email = StringField('邮箱', validators=[Required(), Email()])
+    password = PasswordField('密码', validators=[Required(), Length(6, 24)])
+    repeat_password = PasswordField('重复密码', validators=[Required(), EqualTo('password')])
+    submit = SubmitField('提交')
 
     def validate_username(self, field):
         if User.query.filter_by(username=field.data).first():
-            raise ValidationError('name used')
+            raise ValidationError('此用户名已被注册')
 
     def validate_email(self, field):
         if User.query.filter_by(email=field.data).first():
-            raise ValidationError('email used')
+            raise ValidationError('此邮箱已被注册')
 
     def create_user(self):
         user = User(username=self.name.data, email=self.email.data, password=self.password.data)
@@ -25,18 +25,18 @@ class RegisterForm(FlaskForm):
         return user
 
 class UserProfileForm(FlaskForm):
-    real_name = StringField('real name')
-    email = StringField('Email', validators=[Required(), Email()])
-    password = PasswordField('Password(default)')
-    phone = StringField('phone number')
-    work_years = IntegerField('work years')
-    resume_url = StringField('resume url')
-    submit = SubmitField('Submit')
+    real_name = StringField('姓名')
+    email = StringField('邮箱', validators=[Required(), Email()])
+    password = PasswordField('密码(不填写保持不变)')
+    phone = StringField('手机号')
+    work_years = IntegerField('工作时间')
+    resume_url = StringField('简历URL')
+    submit = SubmitField('提交')
 
     def validate_phone(self, field):
         phone = field.data
         if phone[:2] not in ('13', '15', '18') and len(phone) != 11:
-            raise ValidationError('phone error')
+            raise ValidationError('手机号错误')
 
     def updated_profile(self, user):
         user.real_name = self.real_name.data
@@ -50,20 +50,20 @@ class UserProfileForm(FlaskForm):
         db.session.commit()
 
 class CompanyProfileForm(FlaskForm):
-    name = StringField('Company name')
-    email = StringField('Email', validators=[Required(), Email()])
-    password = PasswordField('Password(default)')
+    name = StringField('企业名称')
+    email = StringField('邮箱', validators=[Required(), Email()])
+    password = PasswordField('密码(不填写保持不变)')
     slug = StringField('Slug', validators=[Required(), Length(3, 24)])
-    location = StringField('address', validators=[Length(0, 64)])
-    site = StringField('company index url', validators=[Length(0, 64)])
+    location = StringField('地址', validators=[Length(0, 64)])
+    site = StringField('公司网站', validators=[Length(0, 64)])
     logo = StringField('Logo')
-    desc = StringField('short description', validators=[Length(0, 100)])
-    about = TextAreaField('abour company info', validators=[Length(0, 1024)])
-    submit = SubmitField('Submit')
+    desc = StringField('一句话描述', validators=[Length(0, 100)])
+    about = TextAreaField('公司详情', validators=[Length(0, 1024)])
+    submit = SubmitField('提交')
 
     def validate_phone(self, field):
         if phone[:2] not in ('13', '15', '18') and len(phone) != 11:
-            raise ValidationError('phone error')
+            raise ValidationError('手机号错误')
 
     def updated_profile(self, user):
         user.name = self.name.data
@@ -82,16 +82,16 @@ class CompanyProfileForm(FlaskForm):
         db.session.commit()
 
 class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[Required(), Email()])
-    password = PasswordField('Password', validators=[Required(), Length(6, 24)])
-    remember_me = BooleanField('Remember me')
-    submit = SubmitField('Submit')
+    email = StringField('邮箱', validators=[Required(), Email()])
+    password = PasswordField('密码', validators=[Required(), Length(6, 24)])
+    remember_me = BooleanField('记住我')
+    submit = SubmitField('提交')
 
     def validate_email(self, field):
         if field.data and not User.query.filter_by(email=field.data).first():
-            raise ValidationError('email not register')
+            raise ValidationError('此邮箱未被注册')
 
     def validate_password(self, field):
         user = User.query.filter_by(email=self.email.data).first()
         if user and not user.check_password(field.data):
-            raise ValidationError('Password error')
+            raise ValidationError('密码错误')

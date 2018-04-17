@@ -150,7 +150,6 @@ class Job(Base):
     company_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
     company = db.relationship('User', uselist=False, backref=db.backref('jobs', lazy='dynamic'))
     views_count = db.Column(db.Integer, default=0)
-    is_disable = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return '<Job:{}>'.format(self.name)
