@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, request, flash, url_for, redirect, current_app
-from jobplus.models import User, CompanyDetail, db, Job
+from flask import Blueprint, render_template, request, flash, url_for, redirect
+from jobplus.models import User, db, Job
 from jobplus.forms import RegisterForm, LoginForm
 from flask_login import login_user, login_required, logout_user
 
@@ -14,6 +14,9 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
+        if user.is_disable:
+            flash('用户已被禁用,请联系管理员')
+            return redirect(url_for('front.login'))
         login_user(user, form.remember_me.data)
         next = 'user.profile'
         if user.is_admin:

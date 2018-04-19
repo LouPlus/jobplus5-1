@@ -49,7 +49,7 @@ class FakerData(object):
     def fake_company(self):
         for company in self.lagou.company:
             c = User(
-                    username=company['companyShortName'],
+                    name=company['companyShortName'],
                     email=fake.email(),
                     role=User.ROLE_COMPANY
                     )

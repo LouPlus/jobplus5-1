@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
   </head>
+
   <body>
     <nav class="navbar navbar-inverse">
       <div class="container">
@@ -19,14 +20,16 @@
         </button>
         <a class="navbar-brand" href="/">Jobplus</a>
         </div>
+
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav">
             <li class="{% if active == 'job' %}active{% endif %}"><a href="{{ url_for('job.index') }}">职位<span class="sr-only">(current)</span></a></li>
-            <li class="{% if active == 'company' %}active{% endif %}"><a href="#">公司<span class="sr-only">(current)</span></a></li>
+            <li class="{% if active == 'company' %}active{% endif %}"><a href="{{ url_for('company.index') }}">公司<span class="sr-only">(current)</span></a></li>
             {% if current_user.is_authenticated and current_user.is_admin %}
-            <li><a href="#">控制台</a></li>
+            <li><a href="{{ url_for('admin.index') }}">控制台</a></li>
             {% endif %}
         </ul>
+
         <ul class="nav navbar-nav navbar-right">
           {% if not current_user.is_authenticated %}  
             <li><a href="{{ url_for('front.userregister') }}">用户注册</a></li>
@@ -34,7 +37,7 @@
             <li><a href="{{ url_for('front.login') }}">登录</a></li>
           {% else %}
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ current_user.username }}<span class="caret"></span></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span id="username">{{ current_user.name }}</span><span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <li><a href="#">我的主页</a></li>
                 <li role="separator" class="divider"></li>
@@ -77,26 +80,27 @@
             </div>
             <div class="col-md-6  col-lg-5 col-lg-offset-1">
               <div class="row about">
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                   <h4>关于</h4>
                   <ul class="list-unstyled">
-                    <li><a href="/about/">关于我们</a></li>
-                    <li><a href="/ad/">商业合作</a></li>
-                    <li><a href="/links/">友情链接</a></li>
-                    <li><a href="/hr/">招聘</a></li>
+                    <li><a href="#">关于我们</a></li>
+                    <li><a href="#">商务合作</a></li>
+                    <li><a href="#">友情链接</a></li>
+                    <li><a href="#">加入我们</a></li>
                   </ul>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                   <h4>联系方式</h4>
                   <ul class="list-unstyled">
                     <li><a href="#" title="jobplus-weibo" target="_blank">微博</a></li>
-                    <li><a href="mailto:admin@jobplus.com">邮箱</a></li>
+                    <li><a href="#" title="jobplus-email" target="_blank">邮箱</a></li>
                   </ul>
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-4">
                   <h4>赞助者</h4>
                   <ul class="list-unstyled">
                     <li><a href="https://www.shiyanlou.com" target="_blank">实验楼</a></li>
+                    <li><a href="https://github.com/wjstud" target="_blank">wjstud</a></li>
                     <li><a href="https://github.com/ququnaixiaobai" target="_blank">区区乃小白</a></li>
                     <li><a href="https://github.com/wair56" target="_blank">wair56</a></li>
                     <li><a href="https://github.com/kuzusalove" target="_blank">miaopaso</a></li>
@@ -118,6 +122,5 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="static/main.js"></script>
     </body>
 </html>

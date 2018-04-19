@@ -25,7 +25,7 @@ class User(Base, UserMixin):
     ROLE_ADMIN = 30
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(32), unique=True, index=True, nullable=False)
+    name = db.Column(db.String(32), unique=True, index=True, nullable=False)
     email = db.Column(db.String(64), unique=True, index=True, nullable=False)
     _password = db.Column('password', db.String(256), nullable=False)
     real_name = db.Column(db.String(20))
@@ -38,10 +38,17 @@ class User(Base, UserMixin):
 
     detail = db.relationship('CompanyDetail', uselist=False)
 
+    is_disable = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
-        return '<User:{}>'.format(self.username)
+        return '<User:{}>'.format(self.name)
 
+    @property
+    def enable_jobs(self):
+        if not self.is_company:
+            raise AttributeError('user has no attribute enable_jobs')
+        return self.jobs.filter(Job.is_disable.is_(False))
+    
     @property
     def password(self):
         return self._password
@@ -84,7 +91,7 @@ class Experience(Base):
     id = db.Column(db.Integer, primary_key=True)
     begin_at = db.Column(db.DateTime)
     end_at = db.Column(db.DateTime)
-    desc = db.Column(db.String(1024))
+    description = db.Column(db.String(1024))
 
 class JobExperience(Experience):
     __tablename__ = 'job_experience'
@@ -119,7 +126,7 @@ class CompanyDetail(Base):
     logo = db.Column(db.String(256), nullable=False)
     site = db.Column(db.String(128), nullable=False)
     location = db.Column(db.String(24), nullable=False)
-    desc = db.Column(db.String(100))
+    description = db.Column(db.String(100))
     about = db.Column(db.String(1024))
     tags = db.Column(db.String(128))
     stack = db.Column(db.String(128))
@@ -141,7 +148,7 @@ class Job(Base):
     salary_low = db.Column(db.Integer, nullable=False)
     salary_high = db.Column(db.Integer, nullable=False)
     location = db.Column(db.String(24))
-    desc = db.Column(db.String(1500))
+    description = db.Column(db.String(1500))
     tags = db.Column(db.String(128))
     experience_requirement = db.Column(db.String(32))
     degree_requirement = db.Column(db.String(32))
@@ -150,6 +157,7 @@ class Job(Base):
     company_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
     company = db.relationship('User', uselist=False, backref=db.backref('jobs', lazy='dynamic'))
     views_count = db.Column(db.Integer, default=0)
+    is_disable = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return '<Job:{}>'.format(self.name)
@@ -157,6 +165,11 @@ class Job(Base):
     @property
     def tag_list(self):
         return self.tags.split(',')
+
+    @property
+    def current_user_is_applied(self):
+        d = Delivery.query.fillter_by(job_id=self.id, user_id=current_user.id).first()
+        return (d is not None)
 
 class Delivery(Base):
     __tablename__ = 'delivery'
@@ -168,5 +181,14 @@ class Delivery(Base):
     id = db.Column(db.Integer, primary_key=True)
     job_id = db.Column(db.Integer, db.ForeignKey('job.id', ondelete='SET NULL'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'))
+    company_id = db.Column(db.Integer)
     status = db.Column(db.SmallInteger, default=STATUS_WAITING)
     response = db.Column(db.String(256))
+
+    @property
+    def user(self):
+        return User.query.get(self.user_id)
+
+    @property
+    def job(self):
+        return Job.query.get(self.job_id)
