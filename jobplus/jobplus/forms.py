@@ -1,7 +1,11 @@
+import os
+from flask import url_for
 from flask_wtf import FlaskForm
-from jobplus.models import db, User, CompanyDetail
-from wtforms import StringField, PasswordField, SubmitField, ValidationError, BooleanField, IntegerField, TextAreaField
+from flask_wtf.file import FileField, FileRequired
+from jobplus.models import db, User, CompanyDetail, Job
 from wtforms.validators import Required, Length, Email, EqualTo
+from wtforms import StringField, PasswordField, SubmitField, ValidationError, BooleanField, IntegerField, TextAreaField, SelectField
+
 
 class UserForm(FlaskForm):
     email = StringField('邮箱', validators=[Required(), Email()])
@@ -71,18 +75,29 @@ class RegisterForm(FlaskForm):
         return user
 
 class UserProfileForm(FlaskForm):
-    real_name = StringField('姓名')
+    real_name = StringField('姓名', validators=[Required()])
     email = StringField('邮箱', validators=[Required(), Email()])
     password = PasswordField('密码(不填写保持不变)')
     phone = StringField('联系电话')
     work_years = IntegerField('工作年限')
-    resume_url = StringField('简历URL')
+    resume = FileField('上传简历', validators=[FileRequired()])
     submit = SubmitField('提交')
 
     def validate_phone(self, field):
         phone = field.data
         if phone[:2] not in ('13', '15', '18') and len(phone) != 11:
             raise ValidationError('电话号码有误')
+
+    def upload_resume(self):
+        f = self.resume.data
+        filename = self.real_name.data + '.pdf'
+        f.save(os.path.join(
+            os.path.abspath(os.path.dirname(__file__)),
+            'static',
+            'resumes',
+            filename
+            ))
+        return filename
 
     def updated_profile(self, user):
         user.real_name = self.real_name.data
@@ -91,7 +106,8 @@ class UserProfileForm(FlaskForm):
             user.password = self.password.data
         user.phone = self.phone.data
         user.work_years = self.work_years.data
-        user.resume_url = self.resume_url.data
+        filename = self.upload_resume()
+        user.resume_url = url_for('static', filename=os.path.join('resumes', filename))
         db.session.add(user)
         db.session.commit()
 
@@ -104,7 +120,7 @@ class CompanyProfileForm(FlaskForm):
     location = StringField('地址', validators=[Length(0, 64)])
     site = StringField('公司网站', validators=[Length(0, 64)])
     logo = StringField('Logo')
-    desc = StringField('一句话描述', validators=[Length(0, 100)])
+    description = StringField('一句话描述', validators=[Length(0, 100)])
     about = TextAreaField('公司详情', validators=[Length(0, 1024)])
     submit = SubmitField('提交')
 
@@ -138,3 +154,48 @@ class LoginForm(FlaskForm):
         user = User.query.filter_by(email=self.email.data).first()
         if user and not user.check_password(field.data):
             raise ValidationError('密码错误')
+
+class JobForm(FlaskForm):
+    name = StringField('职位名称')
+    salary_low = IntegerField('最低薪酬')
+    salary_high = IntegerField('最高薪酬')
+    location = StringField('工作地点')
+    tags = StringField('职位标签(多个用,隔开)')
+    experience_requirement = SelectField(
+        '经验要求(年)',
+        choices=[
+            ('不限', '不限'),
+            ('1', '1'),
+            ('2', '2'),
+            ('3', '3'),
+            ('1-3', '1-3'),
+            ('3-5', '3-5'),
+            ('5+', '5+')
+        ]
+    )
+    degree_requirement = SelectField(
+        '学历要求',
+        choices=[
+            ('不限', '不限'),
+            ('专科', '专科'),
+            ('本科', '本科'),
+            ('硕士', '硕士'),
+            ('博士', '博士')
+        ]
+    )
+    description = TextAreaField('职位描述', validators=[Length(0, 1500)])
+    submit = SubmitField('发布')
+
+    def create_job(self, company):
+        job = Job()
+        self.populate_obj(job)
+        job.company_id = company.id
+        db.session.add(job)
+        db.session.commit()
+        return job
+
+    def update_job(self, job):
+        self.populate_obj(job)
+        db.session.add(job)
+        db.session.commit()
+        return job

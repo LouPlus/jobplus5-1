@@ -1,7 +1,7 @@
-from flask import render_template, Blueprint, redirect, request, current_app, url_for, flash
-from jobplus.decorators import admin_required
 from jobplus.models import User, db, Job
+from jobplus.decorators import admin_required
 from jobplus.forms import CompanyForm, UserForm, CompanyProfileForm, UserProfileForm
+from flask import render_template, Blueprint, redirect, request, current_app, url_for, flash
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -77,3 +77,14 @@ def delete_user(user_id):
     db.session.commit()
     flash('已经删除成功', 'success')
     return redirect(url_for('admin.users'))
+
+@admin.route('/jobs')
+@admin_required
+def jobs():
+    page = request.args.get('page', default=1, type=int)
+    pagination = Job.query.paginate(
+            page=page,
+            per_page=current_app.config['ADMIN_PER_PAGE'],
+            error_out=False
+            )
+    return render_template('admin/jobs.html', pagination=pagination)

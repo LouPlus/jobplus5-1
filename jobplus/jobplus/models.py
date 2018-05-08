@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
@@ -9,7 +9,8 @@ class Base(db.Model):
     __abstract__ = True
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, 
+                                        onupdate=datetime.utcnow)
 
 user_job = db.Table(
         'user_job',
@@ -168,7 +169,7 @@ class Job(Base):
 
     @property
     def current_user_is_applied(self):
-        d = Delivery.query.fillter_by(job_id=self.id, user_id=current_user.id).first()
+        d = Delivery.query.filter_by(job_id=self.id, user_id=current_user.id).first()
         return (d is not None)
 
 class Delivery(Base):
